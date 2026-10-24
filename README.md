@@ -4,12 +4,24 @@
 
 ---
 
-## ⚡ Architecture (Identical to `nvm`)
+## 💡 Why `jvm`?
 
-Just like `nvm`:
-- **`install.sh` / `install.ps1`**: The installation script copies the binary and places the loader in your shell profile.
-- **`jvm.sh` (or `jvm.ps1` / `jvm.fish`)**: Sourced once in your `.zshrc` / `.bashrc` / `$PROFILE`, providing the thin `jvm` wrapper function that instantly updates `JAVA_HOME` and `PATH` on `jvm use`.
-- **`jvm` binary**: High-speed compiled Go binary that handles all downloading, checksum verification, archive extraction, and version resolution.
+- **⚡ Blazing Fast Shell Startup**: Sourcing heavy shell managers can noticeably delay opening new terminal tabs. `jvm` uses a high-performance compiled Go core paired with a minimal ~15-line shell wrapper, keeping shell startup times under **3ms**.
+- **📦 Zero External Dependencies**: A single self-contained, statically compiled binary. Does not depend on system `curl`, `tar`, `unzip`, `jq`, Python, or Node. Works identically across minimal Docker images, Linux, macOS, and Windows.
+- **🪟 True Cross-Platform & Native Windows Support**: First-class support for macOS (Apple Silicon `arm64` & Intel `x64`), Linux (`amd64` & `arm64`), and Windows with native PowerShell integration—no WSL or Cygwin required.
+- **🔗 Seamless External JDK Linking**: Connect JDKs already present on your machine (e.g. from Homebrew, Apple native installers, or Android Studio) without redownloading 300MB archives. `jvm link` automatically parses vendor metadata and links them safely.
+- **🍎 Smart macOS Bundle Awareness**: Automatically navigates the differences between standard Linux root layouts and macOS `.jdk/Contents/Home` structures to guarantee correct `JAVA_HOME` resolution across all tools (IntelliJ, Gradle, Maven).
+- **💾 Configurable Storage & Directory Auto-Scanning**: Store JDKs on external drives, secondary partitions, or custom enterprise volumes with `jvm set-dir`, automatically discovering and registering all existing installations in that path.
+- **🌐 Install from Anywhere**: In addition to querying all major upstream distributions (Temurin, Corretto, Zulu, GraalVM), download and verify custom releases, early-access builds (EA), or private enterprise mirrors directly via `--from <url>`.
+- **📁 Frictionless Project-Level Switching**: Automatically switch `JAVA_HOME` and `$PATH` upon entering a directory containing `.java-version` or `.jvmrc`.
+
+---
+
+## ⚡ Architecture
+
+- **`install.sh` / `install.ps1`**: Installs the binary and places the loader in your shell profile.
+- **`jvm.sh` (or `jvm.ps1` / `jvm.fish`)**: Lightweight shell wrapper that instantly updates `JAVA_HOME` and `PATH` on `jvm use`.
+- **`jvm` binary**: Compiled Go binary handling discovery, downloads, SHA256 verification, archive extraction, and version resolution.
 
 ---
 
@@ -17,11 +29,11 @@ Just like `nvm`:
 
 ### macOS / Linux (POSIX)
 ```bash
-# From git repository:
-./install.sh
+# Via curl:
+curl -fsSL https://raw.githubusercontent.com/unstoppable-tanmay/jvm/main/install.sh | bash
 
-# Or via curl:
-# curl -fsSL https://raw.githubusercontent.com/tanmay/jvm/main/install.sh | bash
+# Or from local repository:
+./install.sh
 ```
 
 Reload your shell:
@@ -31,8 +43,10 @@ source ~/.zshrc   # or source ~/.bashrc
 
 ### Windows (PowerShell)
 ```powershell
+irm https://raw.githubusercontent.com/unstoppable-tanmay/jvm/main/install.ps1 | iex
+
+# Or from local repository:
 .\install.ps1
-# Or: irm https://raw.githubusercontent.com/tanmay/jvm/main/install.ps1 | iex
 ```
 
 ---
@@ -102,4 +116,4 @@ To lock a project to a specific Java version, create a `.java-version` or `.jvmr
 echo "21" > .java-version
 ```
 
-When you `cd` into that directory, `jvm.sh` automatically switches your `JAVA_HOME` and `PATH` to that version!
+When you `cd` into that directory, `jvm` automatically switches your `JAVA_HOME` and `PATH` to that version!
