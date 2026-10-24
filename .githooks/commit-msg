@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+# Conventional Commit message validator (feat, fix, docs, chore, refactor, test, ci)
+COMMIT_MSG_FILE=$1
+COMMIT_MSG=$(head -n 1 "$COMMIT_MSG_FILE")
+
+PATTERN="^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\([a-zA-Z0-9_\-]+\))?: .+"
+
+if [[ ! "$COMMIT_MSG" =~ $PATTERN ]]; then
+    echo "❌ Invalid commit message format!"
+    echo "   Received: \"$COMMIT_MSG\""
+    echo ""
+    echo "   Must follow Conventional Commits:"
+    echo "   <type>(<optional scope>): <subject>"
+    echo ""
+    echo "   Examples:"
+    echo "     feat: add support for zulu jdk"
+    echo "     fix(cli): resolve download timeout on macos"
+    echo "     docs: update installation instructions in readme"
+    echo "     chore: configure release workflows"
+    exit 1
+fi

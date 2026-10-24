@@ -1,0 +1,35 @@
+# Binaries
+bin/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+jvm
+
+# Test binaries & coverage
+*.test
+*.out
+coverage.txt
+
+# Go workspace
+go.work
+go.work.sum
+
+# GoReleaser dist
+dist/
+
+# Dependencies & modules
+node_modules/
+package-lock.json
+
+# IDEs & OS
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Local runtime testing folders
+temp_*/
+downloads/
