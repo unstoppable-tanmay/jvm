@@ -100,9 +100,9 @@ jvm link /opt/homebrew/opt/openjdk@11 homebrew-11
 jvm set-dir /Volumes/ExternalSSD/jdks
 ```
 
-### 6. Uninstall or Unlink
+### 6. Uninstall a Specific JDK
 ```bash
-# Uninstalls downloaded JDKs, or cleanly unlinks external ones (without deleting files)
+# Uninstalls a downloaded JDK, or cleanly unlinks external ones (without deleting original files)
 jvm uninstall 17
 ```
 
@@ -117,3 +117,28 @@ echo "21" > .java-version
 ```
 
 When you `cd` into that directory, `jvm` automatically switches your `JAVA_HOME` and `PATH` to that version!
+
+---
+
+## 🗑️ Uninstalling `jvm`
+
+To completely remove `jvm` and clean up your shell profiles:
+
+### macOS / Linux (POSIX)
+```bash
+# Via curl:
+curl -fsSL https://raw.githubusercontent.com/unstoppable-tanmay/jvm/main/uninstall.sh | bash
+
+# Or from local repository:
+./uninstall.sh
+```
+
+### Windows (PowerShell)
+```powershell
+irm https://raw.githubusercontent.com/unstoppable-tanmay/jvm/main/uninstall.ps1 | iex
+
+# Or from local repository:
+.\uninstall.ps1
+```
+
+> **Note**: The uninstaller will prompt for confirmation and ask whether you want to **keep your installed JDK versions** or delete everything completely.
