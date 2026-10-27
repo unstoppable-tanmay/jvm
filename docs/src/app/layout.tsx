@@ -14,7 +14,7 @@ const jetbrainsMono = JetBrains_Mono({
   display: "swap",
 });
 
-const siteUrl = "https://jvm-cli.vercel.app";
+const siteUrl = "https://jvm-doc.vercel.app";
 
 export const viewport: Viewport = {
   themeColor: "#ffffff",
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     template: "%s | jvm",
   },
   description:
-    "An ultra-fast, cross-platform Java Version Manager written in Go with an nvm-style architecture. Sub-3ms shell startup time, zero dependencies, external JDK linking, and project auto-switching.",
+    "An ultra-fast Java version manager with sub-3ms shell startup, zero dependencies, external JDK linking, and project auto-switching.",
   applicationName: "jvm",
   authors: [
     {
@@ -69,12 +69,12 @@ export const metadata: Metadata = {
   openGraph: {
     title: "jvm — The Ultra-Fast Java Version Manager",
     description:
-      "Java version management, made simple. Sub-3ms shell startup time, zero external dependencies, external JDK linking, and project auto-switching.",
+      "Java version management, made simple. Sub-3ms shell startup, zero dependencies, and instant switching.",
     url: siteUrl,
     siteName: "jvm",
     images: [
       {
-        url: "/api/og",
+        url: `${siteUrl}/api/og`,
         width: 1200,
         height: 630,
         alt: "jvm — The Ultra-Fast Java Version Manager",
@@ -88,8 +88,8 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "jvm — The Ultra-Fast Java Version Manager",
     description:
-      "Java version management, made simple. Sub-3ms shell startup time, zero external dependencies, external JDK linking, and project auto-switching.",
-    images: ["/api/og"],
+      "Java version management, made simple. Sub-3ms shell startup, zero dependencies, and instant switching.",
+    images: [`${siteUrl}/api/og`],
     creator: "@tanmay",
   },
   robots: {
