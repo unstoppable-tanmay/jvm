@@ -83,6 +83,8 @@ var envCmd = &cobra.Command{
 			fmt.Printf("$env:JAVA_HOME = %q\n$env:PATH = %q + [IO.Path]::PathSeparator + $env:PATH\n", targetDir, binDir)
 		case "fish":
 			fmt.Printf("set -gx JAVA_HOME %q;\nset -gx PATH %q $PATH;\n", targetDir, binDir)
+		case "cmd":
+			fmt.Printf("set \"JAVA_HOME=%s\" & set \"PATH=%s;%%PATH%%\"\n", targetDir, binDir)
 		default:
 			// POSIX (zsh, bash)
 			fmt.Printf("export JAVA_HOME=%q;\nexport PATH=%q:\"$PATH\";\n", targetDir, binDir)

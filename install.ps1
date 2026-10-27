@@ -15,9 +15,11 @@ $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 if (Test-Path "$scriptDir\bin\jvm.exe") {
     Copy-Item "$scriptDir\bin\jvm.exe" -Destination "$binDir\jvm.exe" -Force
     Copy-Item "$scriptDir\jvm.ps1" -Destination "$jvmDir\jvm.ps1" -Force
+    if (Test-Path "$scriptDir\jvm.cmd") { Copy-Item "$scriptDir\jvm.cmd" -Destination "$binDir\jvm.cmd" -Force }
 } elseif (Test-Path ".\bin\jvm.exe") {
     Copy-Item ".\bin\jvm.exe" -Destination "$binDir\jvm.exe" -Force
     Copy-Item ".\jvm.ps1" -Destination "$jvmDir\jvm.ps1" -Force
+    if (Test-Path ".\jvm.cmd") { Copy-Item ".\jvm.cmd" -Destination "$binDir\jvm.cmd" -Force }
 }
 
 $profilePath = $PROFILE

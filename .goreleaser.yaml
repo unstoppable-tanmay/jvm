@@ -38,6 +38,7 @@ archives:
       - jvm.sh
       - jvm.fish
       - jvm.ps1
+      - jvm.cmd
 
 checksum:
   name_template: 'checksums.txt'
