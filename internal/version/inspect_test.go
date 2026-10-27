@@ -18,6 +18,7 @@ func TestInspectJDK_StandardLayout(t *testing.T) {
 	binDir := filepath.Join(tempJDK, "bin")
 	_ = os.MkdirAll(binDir, 0755)
 	_ = os.WriteFile(filepath.Join(binDir, "java"), []byte("#!/bin/sh\n"), 0755)
+	_ = os.WriteFile(filepath.Join(binDir, "java.exe"), []byte("mock binary"), 0755)
 
 	releaseContent := `JAVA_VERSION="17.0.12"
 IMPLEMENTOR="Eclipse Adoptium"
@@ -51,6 +52,7 @@ func TestInspectJDK_MacOSBundleLayout(t *testing.T) {
 	binDir := filepath.Join(homeDir, "bin")
 	_ = os.MkdirAll(binDir, 0755)
 	_ = os.WriteFile(filepath.Join(binDir, "java"), []byte("#!/bin/sh\n"), 0755)
+	_ = os.WriteFile(filepath.Join(binDir, "java.exe"), []byte("mock binary"), 0755)
 
 	releaseContent := `JAVA_VERSION="21.0.2"
 IMPLEMENTOR="Amazon.com Inc."
