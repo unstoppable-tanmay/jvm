@@ -22,6 +22,8 @@ dist/
 # Dependencies & modules
 node_modules/
 package-lock.json
+.next/
+out/
 
 # IDEs & OS
 .DS_Store

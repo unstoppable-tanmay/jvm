@@ -1,35 +1,29 @@
 # jvm (Java Version Manager)
 
-`jvm` is an ultra-fast, cross-platform Java Version Manager written in Go with an `nvm`-style architecture. It simplifies discovering, installing, switching, linking, and managing multiple JDKs without administrative privileges or messy manual environment variable setups.
+[![GitHub Sponsors](https://img.shields.io/badge/Sponsor-%E2%99%A5-ea4aaa?style=flat&logo=githubsponsors&logoColor=white)](https://github.com/sponsors/unstoppable-tanmay)
+[![Release](https://img.shields.io/github/v/release/unstoppable-tanmay/jvm?style=flat&color=18181b)](https://github.com/unstoppable-tanmay/jvm/releases)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Website](https://img.shields.io/badge/docs-website-zinc?style=flat)](https://github.com/unstoppable-tanmay/jvm)
+
+> **Java version management, made simple.**  
+> Stop wrestling with broken `JAVA_HOME` paths, slow shell startups, and manual downloads. Switch between Java 8, 17, 21, and beyond in milliseconds.
 
 ---
 
-## 💡 Why `jvm`?
+## ⚡ Highlights
 
-- **⚡ Blazing Fast Shell Startup**: Sourcing heavy shell managers can noticeably delay opening new terminal tabs. `jvm` uses a high-performance compiled Go core paired with a minimal ~15-line shell wrapper, keeping shell startup times under **3ms**.
-- **📦 Zero External Dependencies**: A single self-contained, statically compiled binary. Does not depend on system `curl`, `tar`, `unzip`, `jq`, Python, or Node. Works identically across minimal Docker images, Linux, macOS, and Windows.
-- **🪟 True Cross-Platform & Native Windows Support**: First-class support for macOS (Apple Silicon `arm64` & Intel `x64`), Linux (`amd64` & `arm64`), and Windows with native PowerShell integration—no WSL or Cygwin required.
-- **🔗 Seamless External JDK Linking**: Connect JDKs already present on your machine (e.g. from Homebrew, Apple native installers, or Android Studio) without redownloading 300MB archives. `jvm link` automatically parses vendor metadata and links them safely.
-- **🍎 Smart macOS Bundle Awareness**: Automatically navigates the differences between standard Linux root layouts and macOS `.jdk/Contents/Home` structures to guarantee correct `JAVA_HOME` resolution across all tools (IntelliJ, Gradle, Maven).
-- **💾 Configurable Storage & Directory Auto-Scanning**: Store JDKs on external drives, secondary partitions, or custom enterprise volumes with `jvm set-dir`, automatically discovering and registering all existing installations in that path.
-- **🌐 Install from Anywhere**: In addition to querying all major upstream distributions (Temurin, Corretto, Zulu, GraalVM), download and verify custom releases, early-access builds (EA), or private enterprise mirrors directly via `--from <url>`.
-- **📁 Frictionless Project-Level Switching**: Automatically switch `JAVA_HOME` and `$PATH` upon entering a directory containing `.java-version` or `.jvmrc`.
+- **🚀 Sub-3ms Startup**: Sourcing heavy shell managers can noticeably delay opening new terminal tabs. `jvm` uses a compiled Go core with a ~15-line shell wrapper to keep shell startup under 3ms.
+- **🔗 Keep Your Existing JDKs**: Connect JDKs already present on your machine (Homebrew, Apple native installers, Android Studio) without redownloading 300MB archives.
+- **📁 Frictionless Project Switching**: Commit a `.java-version` or `.jvmrc` file to your repository. When you or your teammates `cd` in, the right Java runtime activates automatically.
+- **🌐 Install from Anywhere**: Query major upstream distributions (Temurin, Corretto, Zulu, GraalVM), or download custom internal enterprise mirrors and early-access builds with `--from <url>` and SHA256 verification.
+- **🪟 True Cross-Platform**: First-class support for macOS (Apple Silicon `arm64` & Intel `x64`), Linux (`amd64` & `arm64`), and Windows (native PowerShell & `cmd.exe`).
+- **💾 Flexible Storage**: Store JDKs on external drives, secondary partitions, or custom enterprise volumes with `jvm set-dir` and safe migration/linking prompts.
 
 ---
 
-## ⚡ Architecture
+## 🚀 Quick Install
 
-- **`install.sh` / `install.ps1`**: Installs the binary and places the loader in your shell profile.
-- **`jvm.sh` (or `jvm.ps1` / `jvm.fish`)**: Lightweight shell wrapper that instantly updates `JAVA_HOME` and `PATH` on `jvm use` and hooks into shell directory transitions (`cd`).
-- **`jvm` binary**: Compiled Go binary handling discovery, downloads, SHA256 verification, archive extraction, and version resolution.
-
----
-
-## 🚀 Installation Methods
-
-### 1. Standalone Script (Recommended)
-
-#### macOS & Linux (curl or wget)
+### macOS / Linux (curl or wget)
 ```bash
 # Using curl:
 curl -fsSL https://raw.githubusercontent.com/unstoppable-tanmay/jvm/main/install.sh | bash
@@ -38,144 +32,127 @@ curl -fsSL https://raw.githubusercontent.com/unstoppable-tanmay/jvm/main/install
 wget -qO- https://raw.githubusercontent.com/unstoppable-tanmay/jvm/main/install.sh | bash
 ```
 
-#### Windows (PowerShell)
-```powershell
-irm https://raw.githubusercontent.com/unstoppable-tanmay/jvm/main/install.ps1 | iex
-```
-
----
-
-### 2. Homebrew (macOS / Linux)
+### Homebrew (macOS / Linux)
 ```bash
 brew tap unstoppable-tanmay/jvm
 brew install jvm
 ```
-
 Add the loader to your shell profile (`~/.zshrc` or `~/.bashrc`):
 ```bash
 [ -s "$(brew --prefix jvm)/jvm.sh" ] && \. "$(brew --prefix jvm)/jvm.sh"
 ```
 
----
-
-### 3. Via `go install`
-If you already have Go installed on your machine:
-```bash
-go install github.com/unstoppable-tanmay/jvm/cmd/jvm@latest
+### Windows (PowerShell)
+```powershell
+irm https://raw.githubusercontent.com/unstoppable-tanmay/jvm/main/install.ps1 | iex
 ```
 
----
-
-### 4. Direct Binary Download (GitHub Releases)
-Pre-compiled standalone archives for every OS and architecture are available directly on the [**GitHub Releases Page**](https://github.com/unstoppable-tanmay/jvm/releases):
-
-| OS | Architecture | Format | Archive Link |
-|---|---|---|---|
-| **macOS** | Apple Silicon (`arm64`) | `.tar.gz` | [Download](https://github.com/unstoppable-tanmay/jvm/releases/latest) |
-| **macOS** | Intel (`x86_64`) | `.tar.gz` | [Download](https://github.com/unstoppable-tanmay/jvm/releases/latest) |
-| **Linux** | 64-bit (`amd64`) | `.tar.gz` | [Download](https://github.com/unstoppable-tanmay/jvm/releases/latest) |
-| **Linux** | ARM64 (`aarch64`) | `.tar.gz` | [Download](https://github.com/unstoppable-tanmay/jvm/releases/latest) |
-| **Windows**| 64-bit (`x64`) | `.zip` | [Download](https://github.com/unstoppable-tanmay/jvm/releases/latest) |
-
-#### Manual Setup for Downloaded Binaries:
-1. Extract the downloaded archive.
-2. Move the `jvm` binary to a folder in your `$PATH` (e.g. `~/.jvm/bin/` or `/usr/local/bin/`).
-3. Source `jvm.sh` in your `~/.zshrc` or `~/.bashrc`:
-   ```bash
-   export JVM_DIR="$HOME/.jvm"
-   [ -s "$JVM_DIR/jvm.sh" ] && \. "$JVM_DIR/jvm.sh"
-   ```
+### Direct Binary Download
+Pre-compiled standalone archives for every OS and architecture are available on the [**Releases Page**](https://github.com/unstoppable-tanmay/jvm/releases).
 
 ---
 
-### 5. Build from Source
+## 🛠️ Command Reference
+
+| Command | Shorthand | Description |
+|---|---|---|
+| `jvm use <version>` | — | Switches active JDK in current shell tab immediately (prompts selector if multiple match) |
+| `jvm install <version>` | `jvm i` | Downloads and verifies JDK from upstream vendors (Temurin, Corretto, Zulu, GraalVM) |
+| `jvm ls` | — | Lists all locally installed and externally linked JDK versions |
+| `jvm ls-remote` | — | Queries available upstream releases by vendor and version |
+| `jvm link <path> [name]` | — | Links an existing external JDK into `jvm` without redownloading |
+| `jvm unlink <name>` | — | Safely unlinks an external JDK without touching original disk files |
+| `jvm set-dir <path>` | — | Points storage to another folder (e.g. external SSD) with migration prompts |
+| `jvm current` | — | Displays active `jvm` Java version and system runtime path |
+| `jvm uninstall <version>` | `jvm ui` | Removes a downloaded JDK from `jvm` storage |
+
+### Common Examples
+
+#### Switch Java Runtime
 ```bash
-git clone https://github.com/unstoppable-tanmay/jvm.git
-cd jvm
-./install.sh
-```
-
----
-
-## 🛠️ Usage
-
-### 1. Switch Versions (Instant & Seamless)
-```bash
-# Switches active version in current terminal session immediately
+# Switch to version 21
 jvm use 21
-jvm use corretto@17
-```
-> If multiple JDKs match the target (e.g. an installed Temurin 17 and a linked Homebrew 17), `jvm` displays an interactive prompt asking you to select your preferred choice.
 
-### 2. Install a JDK (alias: `i`)
+# Switch to specific vendor distribution
+jvm use corretto@17
+
+# If multiple versions match, an intuitive selector appears:
+# Multiple matching JDKs found for switching active JDK:
+#   [1] temurin-21+35   (installed)
+#   [2] homebrew-21     (linked -> /opt/homebrew)
+# Select an option [1-2]: 1
+```
+
+#### Install OpenJDK
 ```bash
 # Install Eclipse Temurin 21 (default vendor)
 jvm install 21
-# Or using the shorthand alias:
+# Shorthand alias
 jvm i 21
 
 # Install Amazon Corretto 17
-jvm install corretto@17
+jvm i corretto@17
 
-# Install from custom direct URL or early-access build
-jvm install --from "https://github.com/.../jdk.tar.gz" custom-21
+# Install from custom direct URL with SHA256 integrity check
+jvm install --from "https://github.com/.../jdk.tar.gz" --sha256 "<hash>" custom-21
 ```
 
-### 3. List Installed and Remote Versions
+#### Link Existing JDKs
 ```bash
-# List local installed and linked JDKs
-jvm ls
-
-# List remote available versions
-jvm ls-remote --vendor temurin --version 21
-
-# Show active version and path
-jvm current
-```
-
-### 4. Link an Existing JDK
-```bash
-# Link by path (auto-detects version & vendor from release metadata)
+# Link macOS native installer bundle (auto-detects release metadata)
 jvm link /Library/Java/JavaVirtualMachines/temurin-17.jdk
 
-# Or link with a custom alias
+# Link Homebrew JDK with custom alias
 jvm link /opt/homebrew/opt/openjdk@11 homebrew-11
-```
-*(Linking internal `jvm` storage folders is disallowed to prevent cyclic loops).*
 
-### 5. Unlink an External JDK
-```bash
-# Unlink an external JDK without touching the original files on disk
+# Unlink safely (original files remain untouched)
 jvm unlink homebrew-11
 ```
 
-### 6. Set Custom Directory & Auto-Scan
+#### Custom Storage Directory
 ```bash
-# Point jvm to store JDKs in a custom directory (e.g. an external drive)
-# Also automatically scans and registers any existing JDKs found inside that path!
+# Change JDK storage directory
 jvm set-dir /Volumes/ExternalSSD/jdks
-```
 
-### 7. Uninstall a Downloaded JDK (alias: `ui`)
-```bash
-# Uninstalls a downloaded JDK from jvm storage
-jvm uninstall 17
-# Or using the shorthand alias:
-jvm ui 17
+# Prompts:
+# Existing JDKs found in ~/.jvm/versions:
+#   [1] Move (migrate all existing JDKs to new directory)
+#   [2] Link (symlink existing JDKs into new directory)
+#   [3] Leave (keep them where they are without linking)
 ```
 
 ---
 
-## 📁 Per-Project Version Switching (`.java-version` / `.jvmrc`)
+## 📁 Automatic Project Switching
 
-To lock a project to a specific Java version, create a `.java-version` or `.jvmrc` file in your repository:
+Lock any project to a specific Java version by adding a `.java-version` or `.jvmrc` file in your repository:
 
 ```bash
 echo "21" > .java-version
 ```
 
-### How Auto-Switching Works:
-The `jvm.sh` / `jvm.fish` shell wrapper intercepts directory changes (`chpwd` hook in Zsh, `PROMPT_COMMAND` in Bash, `--on-variable PWD` in Fish). When you `cd` into any project containing `.java-version` (or any of its child subdirectories), `jvm` walks up the directory tree, matches the specified version against your installed/linked JDKs, and automatically points `JAVA_HOME` and `PATH` to it.
+When you `cd` into any repository or subdirectory containing `.java-version`, `jvm` walks up the tree, matches the version, and sets `JAVA_HOME` and `PATH` automatically.
+
+---
+
+## ✅ Features & Roadmap
+
+### User-Facing Capabilities
+- [x] Instant version switching in your current shell session without restarting terminal
+- [x] Auto-switch Java runtime when navigating into projects with `.java-version` or `.jvmrc`
+- [x] Link existing JDKs from Homebrew, Android Studio, and macOS installers without redownloading
+- [x] Clean unlinking to remove links without touching original external files on disk
+- [x] Interactive terminal selector when multiple installed or linked versions match a target
+- [x] Install directly from upstream vendors (Temurin, Corretto, Zulu, GraalVM) via Disco API
+- [x] Install from custom direct URLs with optional SHA256 integrity verification (`--from`)
+- [x] Configurable storage location (e.g. external SSDs) with safe migration prompts (`jvm set-dir`)
+- [x] Cross-platform support across macOS (Apple Silicon & Intel), Linux, and Windows (PowerShell & `cmd.exe`)
+- [x] Clean interactive uninstallation with prompt to preserve or delete downloaded JDKs
+
+### Upcoming Roadmap
+- [ ] Automatic Homebrew formula updates on new GitHub release tags
+- [ ] Built-in proxy and enterprise mirror registry support in user settings
+- [ ] Direct migration wizard to import existing SDKMAN candidate directories
 
 ---
 
@@ -185,19 +162,28 @@ To completely remove `jvm` and clean up your shell profiles:
 
 ### macOS / Linux (POSIX)
 ```bash
-# Via curl:
 curl -fsSL https://raw.githubusercontent.com/unstoppable-tanmay/jvm/main/uninstall.sh | bash
-
-# Or from local repository:
-./uninstall.sh
 ```
 
 ### Windows (PowerShell)
 ```powershell
 irm https://raw.githubusercontent.com/unstoppable-tanmay/jvm/main/uninstall.ps1 | iex
-
-# Or from local repository:
-.\uninstall.ps1
 ```
 
 > **Note**: The uninstaller prompts for confirmation and asks whether you want to **keep your installed JDK versions** or delete everything completely.
+
+---
+
+## ☕ Support & Sponsor
+
+If you find `jvm` useful, consider sponsoring to support continuous maintenance and new features!
+
+<a href="https://github.com/sponsors/unstoppable-tanmay">
+  <img src="https://img.shields.io/badge/Sponsor_on_GitHub-%E2%99%A5-ea4aaa?style=for-the-badge&logo=githubsponsors&logoColor=white" alt="Sponsor unstoppable-tanmay" />
+</a>
+
+---
+
+## 📄 License
+
+MIT License © [Tanmay Kumar Panda](https://tanmaykumarpanda.in)
