@@ -1,9 +1,11 @@
 package cli
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
@@ -22,15 +24,92 @@ var setDirCmd = &cobra.Command{
 			return fmt.Errorf("invalid path: %w", err)
 		}
 
+		cleanNewPath := filepath.Clean(absPath)
+
+		cfg, err := config.LoadConfig()
+		if err != nil {
+			return err
+		}
+
+		oldVersionsDir := filepath.Clean(cfg.VersionsDir)
+		if cleanNewPath == oldVersionsDir {
+			color.Yellow("Directory is already set to: %s", absPath)
+			return nil
+		}
+
 		if _, err := os.Stat(absPath); os.IsNotExist(err) {
 			if err := os.MkdirAll(absPath, 0755); err != nil {
 				return fmt.Errorf("failed to create directory: %w", err)
 			}
 		}
 
-		cfg, err := config.LoadConfig()
-		if err != nil {
-			return err
+		// Check if old versions directory has JDKs to migrate/symlink
+		oldEntries, _ := os.ReadDir(oldVersionsDir)
+		var existingJDKs []os.DirEntry
+		for _, e := range oldEntries {
+			full := filepath.Join(oldVersionsDir, e.Name())
+			fi, err := os.Lstat(full)
+			if err == nil && (fi.IsDir() || (fi.Mode()&os.ModeSymlink != 0)) {
+				existingJDKs = append(existingJDKs, e)
+			}
+		}
+
+		if len(existingJDKs) > 0 {
+			color.Yellow("\nExisting JDKs found in %s (%d versions):", oldVersionsDir, len(existingJDKs))
+			for _, e := range existingJDKs {
+				fmt.Printf("  • %s\n", e.Name())
+			}
+
+			fmt.Println("\nHow would you like to handle existing JDKs?")
+			fmt.Println("  [1] Move (migrate all existing JDKs to new directory)")
+			fmt.Println("  [2] Link (symlink existing JDKs into new directory)")
+			fmt.Println("  [3] Leave (keep them where they are without linking)")
+
+			reader := bufio.NewReader(os.Stdin)
+			for {
+				fmt.Print("\nSelect an option [1-3]: ")
+				choice, _ := reader.ReadString('\n')
+				choice = strings.TrimSpace(choice)
+
+				if choice == "1" {
+					// Move
+					moved := 0
+					for _, e := range existingJDKs {
+						src := filepath.Join(oldVersionsDir, e.Name())
+						dst := filepath.Join(absPath, e.Name())
+						if _, err := os.Lstat(dst); os.IsNotExist(err) {
+							if err := os.Rename(src, dst); err == nil {
+								moved++
+							}
+						}
+					}
+					color.Green("✓ Migrated %d JDKs to %s", moved, absPath)
+					break
+				} else if choice == "2" {
+					// Symlink
+					linked := 0
+					for _, e := range existingJDKs {
+						src := filepath.Join(oldVersionsDir, e.Name())
+						dst := filepath.Join(absPath, e.Name())
+						// Resolve target if it's already a symlink
+						realTarget := src
+						if linkTarget, err := os.Readlink(src); err == nil {
+							realTarget = linkTarget
+						}
+						if _, err := os.Lstat(dst); os.IsNotExist(err) {
+							if err := os.Symlink(realTarget, dst); err == nil {
+								linked++
+							}
+						}
+					}
+					color.Green("✓ Linked %d existing JDKs into %s", linked, absPath)
+					break
+				} else if choice == "3" {
+					color.HiBlack("Left existing JDKs in %s", oldVersionsDir)
+					break
+				}
+				color.Red("Invalid selection. Please choose 1, 2, or 3.")
+			}
 		}
 
 		cfg.Settings.StorageDir = absPath
@@ -38,34 +117,21 @@ var setDirCmd = &cobra.Command{
 			return fmt.Errorf("failed to save settings: %w", err)
 		}
 
-		color.Green("✓ JDK storage directory set to: %s", absPath)
+		color.Green("\n✓ JDK storage directory set to: %s", absPath)
 
-		// Automatically scan the provided path for any existing JDK installations and link them
+		// Also scan the target directory for pre-existing non-jvm JDKs
 		entries, err := os.ReadDir(absPath)
 		if err == nil {
-			linkedCount := 0
+			discoveredCount := 0
 			for _, e := range entries {
 				candidatePath := filepath.Join(absPath, e.Name())
-				info, err := version.InspectJDK(candidatePath)
-				if err != nil {
+				if _, err := version.InspectJDK(candidatePath); err != nil {
 					continue
 				}
-
-				name := info.SuggestedID
-				destLink := filepath.Join(cfg.RootDir, "versions", name)
-				_ = os.MkdirAll(filepath.Dir(destLink), 0755)
-
-				if _, err := os.Lstat(destLink); err == nil {
-					continue
-				}
-
-				if err := os.Symlink(info.JavaHome, destLink); err == nil {
-					color.Green("  ✓ Discovered and registered %s", name)
-					linkedCount++
-				}
+				discoveredCount++
 			}
-			if linkedCount > 0 {
-				color.HiWhite("\nRegistered %d existing JDKs from %s", linkedCount, absPath)
+			if discoveredCount > 0 {
+				color.HiBlack("Total recognized JDKs in %s: %d", absPath, discoveredCount)
 			}
 		}
 
