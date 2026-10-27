@@ -25,41 +25,74 @@
 
 ---
 
-## 🚀 Quick Install
+## 🚀 Installation Methods
 
-### Homebrew (macOS / Linux)
+### 1. Standalone Script (Recommended)
+
+#### macOS & Linux (curl or wget)
+```bash
+# Using curl:
+curl -fsSL https://raw.githubusercontent.com/unstoppable-tanmay/jvm/main/install.sh | bash
+
+# Or using wget:
+wget -qO- https://raw.githubusercontent.com/unstoppable-tanmay/jvm/main/install.sh | bash
+```
+
+#### Windows (PowerShell)
+```powershell
+irm https://raw.githubusercontent.com/unstoppable-tanmay/jvm/main/install.ps1 | iex
+```
+
+---
+
+### 2. Homebrew (macOS / Linux)
 ```bash
 brew tap unstoppable-tanmay/jvm
 brew install jvm
 ```
 
-Then append the loader to your shell profile (`~/.zshrc` or `~/.bashrc`):
+Add the loader to your shell profile (`~/.zshrc` or `~/.bashrc`):
 ```bash
 [ -s "$(brew --prefix jvm)/jvm.sh" ] && \. "$(brew --prefix jvm)/jvm.sh"
 ```
 
 ---
 
-### Standalone / Curl (macOS & Linux)
+### 3. Via `go install`
+If you already have Go installed on your machine:
 ```bash
-# Via curl:
-curl -fsSL https://raw.githubusercontent.com/unstoppable-tanmay/jvm/main/install.sh | bash
+go install github.com/unstoppable-tanmay/jvm/cmd/jvm@latest
+```
 
-# Or from local repository:
+---
+
+### 4. Direct Binary Download (GitHub Releases)
+Pre-compiled standalone archives for every OS and architecture are available directly on the [**GitHub Releases Page**](https://github.com/unstoppable-tanmay/jvm/releases):
+
+| OS | Architecture | Format | Archive Link |
+|---|---|---|---|
+| **macOS** | Apple Silicon (`arm64`) | `.tar.gz` | [Download](https://github.com/unstoppable-tanmay/jvm/releases/latest) |
+| **macOS** | Intel (`x86_64`) | `.tar.gz` | [Download](https://github.com/unstoppable-tanmay/jvm/releases/latest) |
+| **Linux** | 64-bit (`amd64`) | `.tar.gz` | [Download](https://github.com/unstoppable-tanmay/jvm/releases/latest) |
+| **Linux** | ARM64 (`aarch64`) | `.tar.gz` | [Download](https://github.com/unstoppable-tanmay/jvm/releases/latest) |
+| **Windows**| 64-bit (`x64`) | `.zip` | [Download](https://github.com/unstoppable-tanmay/jvm/releases/latest) |
+
+#### Manual Setup for Downloaded Binaries:
+1. Extract the downloaded archive.
+2. Move the `jvm` binary to a folder in your `$PATH` (e.g. `~/.jvm/bin/` or `/usr/local/bin/`).
+3. Source `jvm.sh` in your `~/.zshrc` or `~/.bashrc`:
+   ```bash
+   export JVM_DIR="$HOME/.jvm"
+   [ -s "$JVM_DIR/jvm.sh" ] && \. "$JVM_DIR/jvm.sh"
+   ```
+
+---
+
+### 5. Build from Source
+```bash
+git clone https://github.com/unstoppable-tanmay/jvm.git
+cd jvm
 ./install.sh
-```
-
-Reload your shell:
-```bash
-source ~/.zshrc   # or source ~/.bashrc
-```
-
-### Windows (PowerShell)
-```powershell
-irm https://raw.githubusercontent.com/unstoppable-tanmay/jvm/main/install.ps1 | iex
-
-# Or from local repository:
-.\install.ps1
 ```
 
 ---
