@@ -3,10 +3,15 @@ name: Release
 on:
   workflow_dispatch:
     inputs:
-      version:
-        description: 'Release version (e.g. v0.1.0)'
+      bump:
+        description: 'Version bump type'
         required: true
-        type: string
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
 
 permissions:
   contents: write
@@ -21,16 +26,45 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Create and push git tag
+      - name: Auto-calculate and push next version tag
         run: |
-          TAG="${{ inputs.version }}"
-          if [[ ! "$TAG" =~ ^v ]]; then
-            TAG="v$TAG"
+          # 1. Find the latest semver tag from git
+          LATEST_TAG=$(git tag -l "v*" --sort=-v:refname | head -n 1)
+          if [ -z "$LATEST_TAG" ]; then
+            LATEST_TAG="v0.0.0"
           fi
+          echo "Current latest tag: $LATEST_TAG"
+
+          # 2. Parse major, minor, patch
+          CLEAN_VER="${LATEST_TAG#v}"
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$CLEAN_VER"
+
+          # Fallbacks if format was not standard
+          MAJOR=${MAJOR:-0}
+          MINOR=${MINOR:-0}
+          PATCH=${PATCH:-0}
+
+          # 3. Bump version according to selected input (default: patch)
+          BUMP="${{ inputs.bump }}"
+          if [ "$BUMP" = "major" ]; then
+            MAJOR=$((MAJOR + 1))
+            MINOR=0
+            PATCH=0
+          elif [ "$BUMP" = "minor" ]; then
+            MINOR=$((MINOR + 1))
+            PATCH=0
+          else
+            PATCH=$((PATCH + 1))
+          fi
+
+          NEW_TAG="v${MAJOR}.${MINOR}.${PATCH}"
+          echo "Next release tag: $NEW_TAG"
+
+          # 4. Create and push tag
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git tag -a "$TAG" -m "Release $TAG"
-          git push origin "$TAG"
+          git tag -a "$NEW_TAG" -m "Release $NEW_TAG"
+          git push origin "$NEW_TAG"
 
       - name: Set up Go
         uses: actions/setup-go@v5
@@ -44,5 +78,20 @@ jobs:
           distribution: goreleaser
           version: latest
           args: release --clean
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Prune old releases (keep latest 3)
+        run: |
+          KEEP=3
+          RELEASES=$(gh release list --limit 100 --json tagName --jq '.[].tagName')
+          COUNT=0
+          for tag in $RELEASES; do
+            COUNT=$((COUNT + 1))
+            if [ $COUNT -gt $KEEP ]; then
+              echo "Pruning older release and tag: $tag"
+              gh release delete "$tag" --cleanup-tag --yes
+            fi
+          done
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
