@@ -69,9 +69,18 @@ export const metadata: Metadata = {
   openGraph: {
     title: "jvm — The Ultra-Fast Java Version Manager",
     description:
-      "A modern, lightweight Java Version Manager written in Go with an nvm-style architecture. Sub-3ms startup, zero external dependencies, native Windows support.",
+      "Java version management, made simple. Sub-3ms shell startup time, zero external dependencies, external JDK linking, and project auto-switching.",
     url: siteUrl,
     siteName: "jvm",
+    images: [
+      {
+        url: "/api/og",
+        width: 1200,
+        height: 630,
+        alt: "jvm — The Ultra-Fast Java Version Manager",
+        type: "image/png",
+      },
+    ],
     locale: "en_US",
     type: "website",
   },
@@ -79,7 +88,8 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "jvm — The Ultra-Fast Java Version Manager",
     description:
-      "A modern, lightweight Java Version Manager written in Go with an nvm-style architecture.",
+      "Java version management, made simple. Sub-3ms shell startup time, zero external dependencies, external JDK linking, and project auto-switching.",
+    images: ["/api/og"],
     creator: "@tanmay",
   },
   robots: {

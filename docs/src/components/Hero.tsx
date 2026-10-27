@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { ExternalLink } from "lucide-react";
 import { CodeBlock } from "@/components/CodeBlock";
+import { HERO_CONTENT } from "@/content/hero";
 
 export function Hero() {
   const [platform, setPlatform] = useState<"mac" | "brew" | "win">("mac");
@@ -20,11 +21,7 @@ export function Hero() {
       .catch(() => { });
   }, []);
 
-  const commands = {
-    mac: "curl -fsSL https://raw.githubusercontent.com/unstoppable-tanmay/jvm/main/install.sh | bash",
-    brew: "brew tap unstoppable-tanmay/jvm && brew install jvm",
-    win: "irm https://raw.githubusercontent.com/unstoppable-tanmay/jvm/main/install.ps1 | iex",
-  };
+  const commands = HERO_CONTENT.installCommands;
 
   return (
     <section className="pt-20 pb-16 max-w-4xl mx-auto px-6 text-center">
