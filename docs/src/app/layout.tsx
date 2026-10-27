@@ -14,7 +14,7 @@ const jetbrainsMono = JetBrains_Mono({
   display: "swap",
 });
 
-const siteUrl = "https://jvm-cli.vercel.app";
+const siteUrl = "https://jvm-doc.vercel.app";
 
 export const viewport: Viewport = {
   themeColor: "#ffffff",
