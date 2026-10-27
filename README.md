@@ -74,10 +74,12 @@ jvm use corretto@17
 ```
 > If multiple JDKs match the target (e.g. an installed Temurin 17 and a linked Homebrew 17), `jvm` displays an interactive prompt asking you to select your preferred choice.
 
-### 2. Install a JDK
+### 2. Install a JDK (alias: `i`)
 ```bash
 # Install Eclipse Temurin 21 (default vendor)
 jvm install 21
+# Or using the shorthand alias:
+jvm i 21
 
 # Install Amazon Corretto 17
 jvm install corretto@17
@@ -121,10 +123,12 @@ jvm unlink homebrew-11
 jvm set-dir /Volumes/ExternalSSD/jdks
 ```
 
-### 7. Uninstall a Downloaded JDK
+### 7. Uninstall a Downloaded JDK (alias: `ui`)
 ```bash
 # Uninstalls a downloaded JDK from jvm storage
 jvm uninstall 17
+# Or using the shorthand alias:
+jvm ui 17
 ```
 
 ---

@@ -11,9 +11,10 @@ import (
 )
 
 var uninstallCmd = &cobra.Command{
-	Use:   "uninstall <version>",
-	Short: "Uninstall a downloaded JDK version",
-	Args:  cobra.ExactArgs(1),
+	Use:     "uninstall <version>",
+	Aliases: []string{"ui"},
+	Short:   "Uninstall a downloaded JDK version",
+	Args:    cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		target := args[0]
 

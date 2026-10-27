@@ -23,9 +23,10 @@ var (
 )
 
 var installCmd = &cobra.Command{
-	Use:   "install [version]",
-	Short: "Download and install a specific JDK version (e.g. 21, temurin@17) or install from URL (--from)",
-	Args:  cobra.MaximumNArgs(2),
+	Use:     "install [version]",
+	Aliases: []string{"i"},
+	Short:   "Download and install a specific JDK version (e.g. 21, temurin@17) or install from URL (--from)",
+	Args:    cobra.MaximumNArgs(2),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		cfg, err := config.LoadConfig()
 		if err != nil {
