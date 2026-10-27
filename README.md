@@ -1,5 +1,9 @@
 # jvm (Java Version Manager)
 
+[![GitHub Sponsors](https://img.shields.io/badge/Sponsor-%E2%99%A5-ea4aaa?style=flat&logo=githubsponsors&logoColor=white)](https://github.com/sponsors/unstoppable-tanmay)
+[![Release](https://img.shields.io/github/v/release/unstoppable-tanmay/jvm?style=flat&color=18181b)](https://github.com/unstoppable-tanmay/jvm/releases)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
 `jvm` is an ultra-fast, cross-platform Java Version Manager written in Go with an `nvm`-style architecture. It simplifies discovering, installing, switching, linking, and managing multiple JDKs without administrative privileges or messy manual environment variable setups.
 
 ---
@@ -201,3 +205,20 @@ irm https://raw.githubusercontent.com/unstoppable-tanmay/jvm/main/uninstall.ps1 
 ```
 
 > **Note**: The uninstaller prompts for confirmation and asks whether you want to **keep your installed JDK versions** or delete everything completely.
+
+---
+
+## ☕ Support & Sponsor
+
+If you find `jvm` useful, consider sponsoring to support continuous maintenance and new features!
+
+<a href="https://github.com/sponsors/unstoppable-tanmay">
+  <img src="https://img.shields.io/badge/Sponsor_on_GitHub-%E2%99%A5-ea4aaa?style=for-the-badge&logo=githubsponsors&logoColor=white" alt="Sponsor unstoppable-tanmay" />
+</a>
+
+---
+
+## 📄 License
+
+MIT License © [Tanmay Kumar Panda](https://tanmaykumarpanda.in)
+
