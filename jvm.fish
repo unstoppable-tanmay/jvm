@@ -14,4 +14,21 @@ function jvm
     end
 end
 
+# Auto-switch hook on directory change in fish
+function _jvm_auto_switch --on-variable PWD
+    set -l check_dir $PWD
+    set -l found ""
+    while test "$check_dir" != "/" -a "$check_dir" != "."
+        if test -f "$check_dir/.java-version" -o -f "$check_dir/.jvmrc"
+            set found "1"
+            break
+        end
+        set check_dir (dirname "$check_dir")
+    end
+
+    if test -n "$found"
+        command jvm env --shell fish | source 2>/dev/null
+    end
+end
+
 command jvm env --shell fish | source 2>/dev/null

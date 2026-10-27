@@ -20,14 +20,30 @@ jvm() {
 
 # Auto-switch Java version when cd-ing into a directory with .java-version or .jvmrc
 _jvm_auto_switch() {
-    if [ -f .java-version ] || [ -f .jvmrc ]; then
+    # Check if a .java-version or .jvmrc exists anywhere in this directory or its parents
+    local check_dir="$PWD"
+    local found=""
+    while [ "$check_dir" != "/" ] && [ "$check_dir" != "." ]; do
+        if [ -f "$check_dir/.java-version" ] || [ -f "$check_dir/.jvmrc" ]; then
+            found="1"
+            break
+        fi
+        check_dir="$(dirname "$check_dir")"
+    done
+
+    if [ -n "$found" ]; then
         eval "$(command jvm env --shell posix)" 2>/dev/null
     fi
 }
 
 if [ -n "$ZSH_VERSION" ]; then
     autoload -U add-zsh-hook 2>/dev/null && add-zsh-hook chpwd _jvm_auto_switch 2>/dev/null
+elif [ -n "$BASH_VERSION" ]; then
+    # Hook for Bash PROMPT_COMMAND
+    if [[ ";$PROMPT_COMMAND;" != *";_jvm_auto_switch;"* ]]; then
+        PROMPT_COMMAND="_jvm_auto_switch${PROMPT_COMMAND:+;$PROMPT_COMMAND}"
+    fi
 fi
 
-# Initialize default java on shell startup
+# Initialize active or default java on shell startup
 eval "$(command jvm env --shell posix)" 2>/dev/null

@@ -25,7 +25,7 @@ var listRemoteCmd = &cobra.Command{
 		}
 
 		client := disco.NewClient()
-		color.Cyan("Fetching available JDK releases for %s/%s...\n", plat.OS, plat.Arch)
+		color.Cyan("\nFetching available JDK releases for %s/%s...\n\n", plat.OS, plat.Arch)
 
 		packages, err := client.QueryPackages(remoteVer, remoteVendor, plat)
 		if err != nil {

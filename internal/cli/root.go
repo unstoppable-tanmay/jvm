@@ -36,6 +36,7 @@ func init() {
 	rootCmd.AddCommand(listRemoteCmd)
 	rootCmd.AddCommand(currentCmd)
 	rootCmd.AddCommand(linkCmd)
+	rootCmd.AddCommand(unlinkCmd)
 	rootCmd.AddCommand(setDirCmd)
 	rootCmd.AddCommand(uninstallCmd)
 	rootCmd.AddCommand(envCmd)

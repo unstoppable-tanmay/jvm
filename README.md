@@ -20,14 +20,27 @@
 ## ⚡ Architecture
 
 - **`install.sh` / `install.ps1`**: Installs the binary and places the loader in your shell profile.
-- **`jvm.sh` (or `jvm.ps1` / `jvm.fish`)**: Lightweight shell wrapper that instantly updates `JAVA_HOME` and `PATH` on `jvm use`.
+- **`jvm.sh` (or `jvm.ps1` / `jvm.fish`)**: Lightweight shell wrapper that instantly updates `JAVA_HOME` and `PATH` on `jvm use` and hooks into shell directory transitions (`cd`).
 - **`jvm` binary**: Compiled Go binary handling discovery, downloads, SHA256 verification, archive extraction, and version resolution.
 
 ---
 
 ## 🚀 Quick Install
 
-### macOS / Linux (POSIX)
+### Homebrew (macOS / Linux)
+```bash
+brew tap unstoppable-tanmay/jvm
+brew install jvm
+```
+
+Then append the loader to your shell profile (`~/.zshrc` or `~/.bashrc`):
+```bash
+[ -s "$(brew --prefix jvm)/jvm.sh" ] && \. "$(brew --prefix jvm)/jvm.sh"
+```
+
+---
+
+### Standalone / Curl (macOS & Linux)
 ```bash
 # Via curl:
 curl -fsSL https://raw.githubusercontent.com/unstoppable-tanmay/jvm/main/install.sh | bash
@@ -59,6 +72,7 @@ irm https://raw.githubusercontent.com/unstoppable-tanmay/jvm/main/install.ps1 | 
 jvm use 21
 jvm use corretto@17
 ```
+> If multiple JDKs match the target (e.g. an installed Temurin 17 and a linked Homebrew 17), `jvm` displays an interactive prompt asking you to select your preferred choice.
 
 ### 2. Install a JDK
 ```bash
@@ -92,31 +106,39 @@ jvm link /Library/Java/JavaVirtualMachines/temurin-17.jdk
 # Or link with a custom alias
 jvm link /opt/homebrew/opt/openjdk@11 homebrew-11
 ```
+*(Linking internal `jvm` storage folders is disallowed to prevent cyclic loops).*
 
-### 5. Set Custom Directory & Auto-Scan
+### 5. Unlink an External JDK
+```bash
+# Unlink an external JDK without touching the original files on disk
+jvm unlink homebrew-11
+```
+
+### 6. Set Custom Directory & Auto-Scan
 ```bash
 # Point jvm to store JDKs in a custom directory (e.g. an external drive)
 # Also automatically scans and registers any existing JDKs found inside that path!
 jvm set-dir /Volumes/ExternalSSD/jdks
 ```
 
-### 6. Uninstall a Specific JDK
+### 7. Uninstall a Downloaded JDK
 ```bash
-# Uninstalls a downloaded JDK, or cleanly unlinks external ones (without deleting original files)
+# Uninstalls a downloaded JDK from jvm storage
 jvm uninstall 17
 ```
 
 ---
 
-## 📁 Per-Project Version Switching (`.java-version`)
+## 📁 Per-Project Version Switching (`.java-version` / `.jvmrc`)
 
-To lock a project to a specific Java version, create a `.java-version` or `.jvmrc` file in your repository root:
+To lock a project to a specific Java version, create a `.java-version` or `.jvmrc` file in your repository:
 
 ```bash
 echo "21" > .java-version
 ```
 
-When you `cd` into that directory, `jvm` automatically switches your `JAVA_HOME` and `PATH` to that version!
+### How Auto-Switching Works:
+The `jvm.sh` / `jvm.fish` shell wrapper intercepts directory changes (`chpwd` hook in Zsh, `PROMPT_COMMAND` in Bash, `--on-variable PWD` in Fish). When you `cd` into any project containing `.java-version` (or any of its child subdirectories), `jvm` walks up the directory tree, matches the specified version against your installed/linked JDKs, and automatically points `JAVA_HOME` and `PATH` to it.
 
 ---
 
@@ -141,4 +163,4 @@ irm https://raw.githubusercontent.com/unstoppable-tanmay/jvm/main/uninstall.ps1 
 .\uninstall.ps1
 ```
 
-> **Note**: The uninstaller will prompt for confirmation and ask whether you want to **keep your installed JDK versions** or delete everything completely.
+> **Note**: The uninstaller prompts for confirmation and asks whether you want to **keep your installed JDK versions** or delete everything completely.

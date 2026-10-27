@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
@@ -26,6 +27,26 @@ var linkCmd = &cobra.Command{
 			return fmt.Errorf("directory does not exist: %s", absPath)
 		}
 
+		cfg, err := config.LoadConfig()
+		if err != nil {
+			return err
+		}
+		if err := cfg.EnsureDirectories(); err != nil {
+			return err
+		}
+
+		// Prevent linking jvm's own internal directories
+		cleanTarget := filepath.Clean(absPath)
+		cleanRootDir := filepath.Clean(cfg.RootDir)
+		cleanVersionsDir := filepath.Clean(cfg.VersionsDir)
+
+		if cleanTarget == cleanRootDir || strings.HasPrefix(cleanTarget, cleanRootDir+string(filepath.Separator)) ||
+			cleanTarget == cleanVersionsDir || strings.HasPrefix(cleanTarget, cleanVersionsDir+string(filepath.Separator)) {
+			color.Red("Error: Cannot link a directory inside jvm's own storage (%s).", cleanTarget)
+			color.Yellow("These JDKs are already managed directly by jvm.")
+			return nil
+		}
+
 		color.Cyan("🔍 Inspecting JDK at: %s...", absPath)
 		info, err := version.InspectJDK(absPath)
 		if err != nil {
@@ -35,14 +56,6 @@ var linkCmd = &cobra.Command{
 		name := info.SuggestedID
 		if len(args) == 2 {
 			name = args[1]
-		}
-
-		cfg, err := config.LoadConfig()
-		if err != nil {
-			return err
-		}
-		if err := cfg.EnsureDirectories(); err != nil {
-			return err
 		}
 
 		destLink := filepath.Join(cfg.VersionsDir, name)
