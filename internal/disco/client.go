@@ -13,6 +13,21 @@ import (
 
 const BaseAPI = "https://api.foojay.io/disco/v3.0"
 
+// CommonSupportedVendors lists the primary supported JDK distribution identifiers
+var CommonSupportedVendors = []string{
+	"temurin",
+	"corretto",
+	"zulu",
+	"graalvm",
+	"liberica",
+	"microsoft",
+	"oracle",
+	"dragonwell",
+	"sap_machine",
+	"semeru",
+	"jetbrains",
+}
+
 // Client interacts with Foojay Disco API
 type Client struct {
 	httpClient *http.Client
@@ -94,6 +109,10 @@ func (c *Client) QueryPackages(version string, dist string, p platform.Info) ([]
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
+		if resp.StatusCode == http.StatusBadRequest && dist != "" {
+			return nil, fmt.Errorf("unknown JDK vendor/distribution '%s'.\nSupported vendors include: %s",
+				dist, strings.Join(CommonSupportedVendors, ", "))
+		}
 		return nil, fmt.Errorf("discovery service returned status: %s", resp.Status)
 	}
 
