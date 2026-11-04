@@ -17,9 +17,9 @@ permissions:
   contents: write
 
 jobs:
-  goreleaser:
+  release:
     name: Build & Publish Release
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -28,23 +28,19 @@ jobs:
 
       - name: Auto-calculate and push next version tag
         run: |
-          # 1. Find the latest semver tag from git
           LATEST_TAG=$(git tag -l "v*" --sort=-v:refname | head -n 1)
           if [ -z "$LATEST_TAG" ]; then
             LATEST_TAG="v0.0.0"
           fi
           echo "Current latest tag: $LATEST_TAG"
 
-          # 2. Parse major, minor, patch
           CLEAN_VER="${LATEST_TAG#v}"
           IFS='.' read -r MAJOR MINOR PATCH <<< "$CLEAN_VER"
 
-          # Fallbacks if format was not standard
           MAJOR=${MAJOR:-0}
           MINOR=${MINOR:-0}
           PATCH=${PATCH:-0}
 
-          # 3. Bump version according to selected input (default: patch)
           BUMP="${{ inputs.bump }}"
           if [ "$BUMP" = "major" ]; then
             MAJOR=$((MAJOR + 1))
@@ -59,8 +55,8 @@ jobs:
 
           NEW_TAG="v${MAJOR}.${MINOR}.${PATCH}"
           echo "Next release tag: $NEW_TAG"
+          echo "NEW_TAG=$NEW_TAG" >> $GITHUB_ENV
 
-          # 4. Create and push tag
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git tag -a "$NEW_TAG" -m "Release $NEW_TAG"
@@ -72,7 +68,11 @@ jobs:
           go-version: '1.23'
           cache: true
 
-      - name: Run GoReleaser
+      - name: Install NSIS on macOS
+        run: |
+          brew install makensis
+
+      - name: Run GoReleaser (Compiles binaries & Linux deb/rpm)
         uses: goreleaser/goreleaser-action@v6
         with:
           distribution: goreleaser
@@ -81,17 +81,38 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Install NSIS & build Windows Installer (.exe)
+      - name: Build macOS Installer (jvm.dmg)
         run: |
-          sudo apt-get update && sudo apt-get install -y nsis nsis-pluginapi
-          # Download EnvVarUpdate header for modifying PATH
-          sudo wget -q -O /usr/share/nsis/Include/EnvVarUpdate.nsh https://raw.githubusercontent.com/Stsound/NSIS-EnvVarUpdate/master/EnvVarUpdate.nsh || true
-          
-          # Find generated Windows binary in dist
-          WIN_BIN=$(find dist -name "jvm.exe" | head -n 1)
+          # Locate built macOS darwin_arm64 and darwin_amd64 binaries from dist
+          DARWIN_ARM64=$(find dist/jvm_darwin_arm64* -name "jvm" | head -n 1)
+          DARWIN_AMD64=$(find dist/jvm_darwin_amd64* -name "jvm" | head -n 1)
+
+          # Create Universal Binary for macOS
+          mkdir -p dist/dmg_root/bin
+          if [ -n "$DARWIN_ARM64" ] && [ -n "$DARWIN_AMD64" ]; then
+            lipo -create "$DARWIN_ARM64" "$DARWIN_AMD64" -output dist/dmg_root/bin/jvm
+          else
+            cp "$DARWIN_ARM64" dist/dmg_root/bin/jvm || cp "$DARWIN_AMD64" dist/dmg_root/bin/jvm
+          fi
+          chmod +x dist/dmg_root/bin/jvm
+
+          cp jvm.sh dist/dmg_root/
+          cp jvm.fish dist/dmg_root/
+          cp README.md dist/dmg_root/
+          cp LICENSE dist/dmg_root/
+
+          # Package into jvm.dmg
+          hdiutil create -volname "jvm" -srcfolder dist/dmg_root -ov -format UDZO jvm.dmg
+          gh release upload "$NEW_TAG" jvm.dmg#jvm.dmg\ \(macOS\ Universal\ Disk\ Image\) --clobber
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build Windows Installer (jvm.exe)
+        run: |
+          WIN_BIN=$(find dist/jvm_windows_amd64* -name "jvm.exe" | head -n 1)
           if [ -n "$WIN_BIN" ]; then
             makensis -DVERSION="${NEW_TAG#v}" -DBIN_PATH="$WIN_BIN" .github/installer/windows/installer.nsi
-            gh release upload "$NEW_TAG" jvm_windows_amd64_installer.exe --clobber
+            gh release upload "$NEW_TAG" jvm.exe#jvm.exe\ \(Windows\ x64\ Setup\ Installer\) --clobber
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
