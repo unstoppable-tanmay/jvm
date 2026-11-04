@@ -25,31 +25,15 @@ builds:
     ldflags:
       - -s -w -X github.com/unstoppable-tanmay/jvm/internal/cli.Version={{.Version}}
 
-archives:
-  - id: jvm-archive
-    format: tar.gz
-    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
-    format_overrides:
-      - goos: windows
-        format: zip
-    files:
-      - README.md
-      - LICENSE
-      - jvm.sh
-      - jvm.fish
-      - jvm.ps1
-      - jvm.cmd
-
 nfpms:
   - id: jvm-packages
     package_name: jvm
-    file_name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    file_name_template: "jvm_{{ .Arch }}"
     builds:
       - jvm
     formats:
       - deb
       - rpm
-      - apk
     vendor: "unstoppable-tanmay"
     homepage: "https://github.com/unstoppable-tanmay/jvm"
     maintainer: "Tanmay <https://github.com/unstoppable-tanmay>"
