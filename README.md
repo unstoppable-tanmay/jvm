@@ -42,10 +42,21 @@ Add the loader to your shell profile (`~/.zshrc` or `~/.bashrc`):
 [ -s "$(brew --prefix jvm)/jvm.sh" ] && \. "$(brew --prefix jvm)/jvm.sh"
 ```
 
-### Windows (PowerShell)
-```powershell
-irm https://raw.githubusercontent.com/unstoppable-tanmay/jvm/main/install.ps1 | iex
+### Windows (PowerShell or Command Prompt)
+
+#### Option 1: Using curl (Standard & universal in Windows 10/11)
+Open PowerShell or Command Prompt (`cmd.exe`) and run:
+```cmd
+curl -fsSL https://raw.githubusercontent.com/unstoppable-tanmay/jvm/main/install.cmd -o install.cmd && install.cmd && del install.cmd
 ```
+
+#### Option 2: Using PowerShell (No dependencies)
+```powershell
+powershell -ExecutionPolicy Bypass -Command "iwr -useb https://raw.githubusercontent.com/unstoppable-tanmay/jvm/main/install.ps1 | iex"
+```
+
+#### Option 3: Download & Double-Click
+Download [**install.cmd**](https://raw.githubusercontent.com/unstoppable-tanmay/jvm/main/install.cmd) or standalone binaries directly from the [**Releases Page**](https://github.com/unstoppable-tanmay/jvm/releases).
 
 ### Direct Binary Download
 Pre-compiled standalone archives for every OS and architecture are available on the [**Releases Page**](https://github.com/unstoppable-tanmay/jvm/releases).
@@ -143,10 +154,12 @@ When you `cd` into any repository or subdirectory containing `.java-version`, `j
 - [x] Link existing JDKs from Homebrew, Android Studio, and macOS installers without redownloading
 - [x] Clean unlinking to remove links without touching original external files on disk
 - [x] Interactive terminal selector when multiple installed or linked versions match a target
-- [x] Install directly from upstream vendors (Temurin, Corretto, Zulu, GraalVM) via Disco API
+- [x] Install directly from upstream vendors (Temurin, Corretto, Zulu, GraalVM) with automatic multi-vendor fallbacks
+- [x] Global remote search across all distributions with multi-keyword filters (`jvm ls-remote -s 'vendor,fx,lts'`)
+- [x] Non-interactive terminal support with automatic shims in `~/.jvm/bin` for scripts, CI, and cron jobs
 - [x] Install from custom direct URLs with optional SHA256 integrity verification (`--from`)
 - [x] Configurable storage location (e.g. external SSDs) with safe migration prompts (`jvm set-dir`)
-- [x] Cross-platform support across macOS (Apple Silicon & Intel), Linux, and Windows (PowerShell & `cmd.exe`)
+- [x] True cross-platform support across macOS (Apple Silicon & Intel), Linux, and Windows (PowerShell & `cmd.exe` with directory junctions & registry PATH persistence)
 - [x] Clean interactive uninstallation with prompt to preserve or delete downloaded JDKs
 
 ### Upcoming Roadmap

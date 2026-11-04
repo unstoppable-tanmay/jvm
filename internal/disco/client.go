@@ -13,6 +13,21 @@ import (
 
 const BaseAPI = "https://api.foojay.io/disco/v3.0"
 
+// CommonSupportedVendors lists the primary supported JDK distribution identifiers
+var CommonSupportedVendors = []string{
+	"temurin",
+	"corretto",
+	"zulu",
+	"graalvm",
+	"liberica",
+	"microsoft",
+	"oracle",
+	"dragonwell",
+	"sap_machine",
+	"semeru",
+	"jetbrains",
+}
+
 // Client interacts with Foojay Disco API
 type Client struct {
 	httpClient *http.Client
@@ -68,7 +83,21 @@ type PackageDetailsResponse struct {
 func (c *Client) QueryPackages(version string, dist string, p platform.Info) ([]PackageItem, error) {
 	v := url.Values{}
 	if version != "" && version != "latest" {
-		v.Set("version", version)
+		// In Disco API, if version is a single major number (e.g. "8", "11", "17", "21"),
+		// querying with `jdk_version=<num>` accurately returns packages for that exact major version
+		// (whereas `version=8` fails for Temurin 8, and `version_number` is ignored as an unhandled param).
+		isMajor := true
+		for _, r := range version {
+			if r < '0' || r > '9' {
+				isMajor = false
+				break
+			}
+		}
+		if isMajor {
+			v.Set("jdk_version", version)
+		} else {
+			v.Set("version", version)
+		}
 	}
 	if dist != "" {
 		v.Set("distribution", strings.ToLower(dist))
@@ -94,6 +123,10 @@ func (c *Client) QueryPackages(version string, dist string, p platform.Info) ([]
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
+		if resp.StatusCode == http.StatusBadRequest && dist != "" {
+			return nil, fmt.Errorf("unknown JDK vendor/distribution '%s'.\nSupported vendors include: %s",
+				dist, strings.Join(CommonSupportedVendors, ", "))
+		}
 		return nil, fmt.Errorf("discovery service returned status: %s", resp.Status)
 	}
 

@@ -81,6 +81,21 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Install NSIS & build Windows Installer (.exe)
+        run: |
+          sudo apt-get update && sudo apt-get install -y nsis nsis-pluginapi
+          # Download EnvVarUpdate header for modifying PATH
+          sudo wget -q -O /usr/share/nsis/Include/EnvVarUpdate.nsh https://raw.githubusercontent.com/Stsound/NSIS-EnvVarUpdate/master/EnvVarUpdate.nsh || true
+          
+          # Find generated Windows binary in dist
+          WIN_BIN=$(find dist -name "jvm.exe" | head -n 1)
+          if [ -n "$WIN_BIN" ]; then
+            makensis -DVERSION="${NEW_TAG#v}" -DBIN_PATH="$WIN_BIN" .github/installer/windows/installer.nsi
+            gh release upload "$NEW_TAG" jvm_windows_amd64_installer.exe --clobber
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Prune old releases (keep latest 3)
         run: |
           KEEP=3

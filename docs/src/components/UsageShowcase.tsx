@@ -45,8 +45,15 @@ jvm install --from "https://github.com/.../jdk.tar.gz" --sha256 "<hash>" custom-
       code: `# List installed and linked JDKs
 jvm ls
 
-# List remote releases from Disco API
-jvm ls-remote --vendor temurin --version 21
+# List remote releases across all vendors
+jvm ls-remote --version 21
+jvm ls-remote -r 8
+
+# Search across all distributions with multi-keyword filter (-s)
+jvm ls-remote -s "corretto,8"
+jvm ls-remote -s "zulu,fx,lts"
+
+# Filter by specific vendor distribution
 jvm ls-remote --vendor corretto --version 17`,
     },
     link: {

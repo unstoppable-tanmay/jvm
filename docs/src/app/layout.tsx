@@ -106,6 +106,9 @@ export const metadata: Metadata = {
   alternates: {
     canonical: siteUrl,
   },
+  verification: {
+    google: "C6FQc6M44LTrxZf43lfic7p53w5X_2E4iDsOKekC9D0",
+  },
 };
 
 export default function RootLayout({
@@ -142,6 +145,7 @@ export default function RootLayout({
             }),
           }}
         />
+        <meta name="google-site-verification" content="C6FQc6M44LTrxZf43lfic7p53w5X_2E4iDsOKekC9D0" />
       </head>
       <body className="bg-white text-zinc-900 antialiased selection:bg-zinc-900 selection:text-white min-h-screen">
         {children}

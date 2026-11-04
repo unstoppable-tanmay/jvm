@@ -2,7 +2,6 @@ package cli
 
 import (
 	"fmt"
-	"os"
 	"path/filepath"
 
 	"github.com/fatih/color"
@@ -39,11 +38,13 @@ var useCmd = &cobra.Command{
 			return nil
 		}
 
-		// Update ~/.jvm/current symlink
-		_ = os.Remove(cfg.CurrentLink)
-		if err := os.Symlink(selected.Path, cfg.CurrentLink); err != nil {
+		// Update ~/.jvm/current symlink / junction
+		if err := config.SetCurrentVersion(cfg, selected.Path); err != nil {
 			return fmt.Errorf("failed to link current version: %w", err)
 		}
+
+		// Ensure non-interactive shims exist in ~/.jvm/bin
+		_ = config.EnsureShims(cfg)
 
 		versionName := filepath.Base(selected.Path)
 		color.Green("✓ Now using %s", versionName)
