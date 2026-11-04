@@ -2,7 +2,7 @@
 !include "EnvVarUpdate.nsh"
 
 Name "jvm (Java Version Manager)"
-OutFile "jvm_windows_amd64_installer.exe"
+OutFile "jvm-setup.exe"
 InstallDir "$PROFILE\.jvm"
 RequestExecutionLevel user
 

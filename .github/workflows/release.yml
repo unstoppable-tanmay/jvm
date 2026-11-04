@@ -81,17 +81,24 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Install NSIS & build Windows Installer (.exe)
+      - name: Build Windows Installer (jvm-setup.exe)
         run: |
           sudo apt-get update && sudo apt-get install -y nsis nsis-pluginapi
-          # Download EnvVarUpdate header for modifying PATH
+          # Download EnvVarUpdate header for modifying Windows User PATH
           sudo wget -q -O /usr/share/nsis/Include/EnvVarUpdate.nsh https://raw.githubusercontent.com/Stsound/NSIS-EnvVarUpdate/master/EnvVarUpdate.nsh || true
-          
-          # Find generated Windows binary in dist
-          WIN_BIN=$(find dist -name "jvm.exe" | head -n 1)
-          if [ -n "$WIN_BIN" ]; then
+
+          # Extract jvm.exe from the goreleaser zip archive in dist
+          mkdir -p dist/extracted_win
+          WIN_ZIP=$(find dist -name "*windows_amd64.zip" | head -n 1)
+          if [ -n "$WIN_ZIP" ]; then
+            unzip -o "$WIN_ZIP" -d dist/extracted_win
+            WIN_BIN="dist/extracted_win/jvm.exe"
+            
+            # Compile setup installer with clean universal name jvm-setup.exe
             makensis -DVERSION="${NEW_TAG#v}" -DBIN_PATH="$WIN_BIN" .github/installer/windows/installer.nsi
-            gh release upload "$NEW_TAG" jvm_windows_amd64_installer.exe --clobber
+            gh release upload "$NEW_TAG" jvm-setup.exe --clobber
+          else
+            echo "Windows archive not found in dist"
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
