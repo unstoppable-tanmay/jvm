@@ -7,6 +7,8 @@ IF "%1"=="use" (
     IF ERRORLEVEL 0 (
         FOR /F "tokens=*" %%i IN ('"%~dp0jvm.exe" env --shell cmd') DO %%i
     )
+) ELSE IF "%1"=="auto" (
+    FOR /F "tokens=*" %%i IN ('"%~dp0jvm.exe" env --shell cmd') DO %%i
 ) ELSE (
     "%~dp0jvm.exe" %*
 )

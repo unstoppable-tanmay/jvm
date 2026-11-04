@@ -40,6 +40,32 @@ archives:
       - jvm.ps1
       - jvm.cmd
 
+nfpms:
+  - id: jvm-packages
+    package_name: jvm
+    file_name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    builds:
+      - jvm
+    formats:
+      - deb
+      - rpm
+      - apk
+    vendor: "unstoppable-tanmay"
+    homepage: "https://github.com/unstoppable-tanmay/jvm"
+    maintainer: "Tanmay <https://github.com/unstoppable-tanmay>"
+    description: "Java version management, made simple."
+    license: "MIT"
+    section: "devel"
+    contents:
+      - src: ./jvm.sh
+        dst: /etc/profile.d/jvm.sh
+        file_info:
+          mode: 0644
+      - src: ./jvm.fish
+        dst: /usr/share/fish/vendor_conf.d/jvm.fish
+        file_info:
+          mode: 0644
+
 checksum:
   name_template: 'checksums.txt'
 

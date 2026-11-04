@@ -66,6 +66,19 @@ var installCmd = &cobra.Command{
 			return err
 		}
 
+		// Fallback for vendors that don't support certain architectures (e.g. Temurin on macos arm64 for Java 8)
+		if len(packages) == 0 && vendor == "temurin" {
+			color.Yellow("Temurin build not found for %s on %s/%s. Checking Corretto/Zulu fallbacks...", ver, plat.OS, plat.Arch)
+			for _, fallbackVendor := range []string{"corretto", "zulu"} {
+				if fbPackages, fbErr := client.QueryPackages(ver, fallbackVendor, plat); fbErr == nil && len(fbPackages) > 0 {
+					color.Green("✓ Found alternative distribution from %s!", fallbackVendor)
+					packages = fbPackages
+					vendor = fallbackVendor
+					break
+				}
+			}
+		}
+
 		if len(packages) == 0 {
 			return fmt.Errorf("no JDK package found for %s (%s) on %s/%s", ver, vendor, plat.OS, plat.Arch)
 		}

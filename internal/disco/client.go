@@ -83,7 +83,21 @@ type PackageDetailsResponse struct {
 func (c *Client) QueryPackages(version string, dist string, p platform.Info) ([]PackageItem, error) {
 	v := url.Values{}
 	if version != "" && version != "latest" {
-		v.Set("version", version)
+		// In Disco API, if version is a single major number (e.g. "8", "11", "17", "21"),
+		// querying with `jdk_version=<num>` accurately returns packages for that exact major version
+		// (whereas `version=8` fails for Temurin 8, and `version_number` is ignored as an unhandled param).
+		isMajor := true
+		for _, r := range version {
+			if r < '0' || r > '9' {
+				isMajor = false
+				break
+			}
+		}
+		if isMajor {
+			v.Set("jdk_version", version)
+		} else {
+			v.Set("version", version)
+		}
 	}
 	if dist != "" {
 		v.Set("distribution", strings.ToLower(dist))

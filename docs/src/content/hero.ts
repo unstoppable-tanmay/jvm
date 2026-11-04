@@ -6,7 +6,8 @@ export const HERO_CONTENT = {
   installCommands: {
     mac: "curl -fsSL https://raw.githubusercontent.com/unstoppable-tanmay/jvm/main/install.sh | bash",
     brew: "brew tap unstoppable-tanmay/jvm && brew install jvm",
-    win: "irm https://raw.githubusercontent.com/unstoppable-tanmay/jvm/main/install.ps1 | iex",
+    cmd: "curl -fsSL https://raw.githubusercontent.com/unstoppable-tanmay/jvm/main/install.cmd -o install.cmd && install.cmd && del install.cmd",
+    ps: "powershell -ExecutionPolicy Bypass -Command \"iwr -useb https://raw.githubusercontent.com/unstoppable-tanmay/jvm/main/install.ps1 | iex\"",
   },
   features: [
     "⚡ Sub-3ms Shell Startup",

@@ -20,6 +20,42 @@ if (Test-Path "$scriptDir\bin\jvm.exe") {
     Copy-Item ".\bin\jvm.exe" -Destination "$binDir\jvm.exe" -Force
     Copy-Item ".\jvm.ps1" -Destination "$jvmDir\jvm.ps1" -Force
     if (Test-Path ".\jvm.cmd") { Copy-Item ".\jvm.cmd" -Destination "$binDir\jvm.cmd" -Force }
+} else {
+    # Download latest release binary from GitHub
+    $repo = "unstoppable-tanmay/jvm"
+    $arch = if ([System.Environment]::Is64BitOperatingSystem) { "amd64" } else { "386" }
+    Write-Host "Fetching latest release from GitHub ($arch)..." -ForegroundColor Cyan
+    try {
+        $releaseUrl = "https://api.github.com/repos/$repo/releases/latest"
+        $release = Invoke-RestMethod -Uri $releaseUrl -Headers @{ "User-Agent" = "jvm-installer" }
+        $tag = $release.tag_name
+        $version = $tag.TrimStart('v')
+        $zipUrl = "https://github.com/$repo/releases/download/$tag/jvm_${version}_windows_${arch}.zip"
+        $tempZip = Join-Path $env:TEMP "jvm_${version}.zip"
+
+        Write-Host "Downloading $zipUrl..." -ForegroundColor Cyan
+        Invoke-WebRequest -Uri $zipUrl -OutFile $tempZip
+        Expand-Archive -Path $tempZip -DestinationPath $binDir -Force
+        Remove-Item $tempZip -Force
+    } catch {
+        Write-Warning "Could not fetch pre-built binary: $_"
+    }
+
+    # Download shell scripts
+    try {
+        Invoke-WebRequest -Uri "https://raw.githubusercontent.com/$repo/main/jvm.ps1" -OutFile "$jvmDir\jvm.ps1"
+        Invoke-WebRequest -Uri "https://raw.githubusercontent.com/$repo/main/jvm.cmd" -OutFile "$binDir\jvm.cmd"
+    } catch {
+        Write-Warning "Could not download wrapper scripts: $_"
+    }
+}
+
+# Add $binDir to User Environment PATH permanently so both PowerShell and CMD recognize jvm and java shims
+$userPath = [Environment]::GetEnvironmentVariable("Path", [EnvironmentVariableTarget]::User)
+if ($userPath -notlike "*$binDir*") {
+    $newUserPath = if ($userPath) { "$binDir;$userPath" } else { $binDir }
+    [Environment]::SetEnvironmentVariable("Path", $newUserPath, [EnvironmentVariableTarget]::User)
+    Write-Host "✓ Added $binDir to User PATH environment variable (works in CMD, PowerShell & non-interactive)" -ForegroundColor Green
 }
 
 $profilePath = $PROFILE

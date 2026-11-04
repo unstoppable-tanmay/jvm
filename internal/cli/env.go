@@ -67,8 +67,8 @@ var envCmd = &cobra.Command{
 
 		// If not resolved from .java-version, fall back to ~/.jvm/current
 		if targetDir == "" {
-			if link, err := os.Readlink(cfg.CurrentLink); err == nil {
-				targetDir = link
+			if curr, err := config.GetCurrentVersion(cfg); err == nil {
+				targetDir = curr
 			}
 		}
 

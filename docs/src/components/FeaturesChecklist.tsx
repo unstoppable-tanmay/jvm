@@ -10,10 +10,12 @@ export function FeaturesChecklist() {
     "Link existing JDKs from Homebrew, Android Studio, and macOS installers without redownloading",
     "Clean unlinking to remove links without touching original external files on disk",
     "Interactive terminal selector when multiple installed or linked versions match a target",
-    "Install directly from upstream vendors (Temurin, Corretto, Zulu, GraalVM) via Disco API",
+    "Install directly from upstream vendors (Temurin, Corretto, Zulu, GraalVM) with automatic multi-vendor fallbacks",
+    "Global remote search across all distributions with multi-keyword filters (jvm ls-remote -s 'vendor,fx,lts')",
+    "Non-interactive terminal support with automatic shims in ~/.jvm/bin for scripts, CI, and cron jobs",
     "Install from custom direct URLs with optional SHA256 integrity verification (--from)",
     "Configurable storage location (e.g. external SSDs) with safe migration prompts (jvm set-dir)",
-    "Cross-platform support across macOS (Apple Silicon & Intel), Linux, and Windows (PowerShell & cmd.exe)",
+    "True cross-platform support across macOS (Apple Silicon & Intel), Linux, and Windows (PowerShell & cmd.exe with directory junctions & registry PATH persistence)",
     "Clean interactive uninstallation with prompt to preserve or delete downloaded JDKs",
   ];
 

@@ -7,7 +7,7 @@ import { CodeBlock } from "@/components/CodeBlock";
 import { HERO_CONTENT } from "@/content/hero";
 
 export function Hero() {
-  const [platform, setPlatform] = useState<"mac" | "brew" | "win">("mac");
+  const [platform, setPlatform] = useState<"mac" | "brew" | "cmd" | "ps">("mac");
   const [latestVersion, setLatestVersion] = useState("v0.1.0");
 
   useEffect(() => {
@@ -69,34 +69,43 @@ export function Hero() {
         id="install"
         className="mt-10 max-w-xl mx-auto text-left"
       >
-        <div className="flex items-center justify-between gap-2 mb-2.5 flex-wrap ">
-          <div className="flex items-center gap-1 [&>button]:cursor-pointer">
+        <div className="flex items-center justify-between gap-2 mb-2.5">
+          <div className="flex items-center gap-1 p-0.5 bg-zinc-100 rounded-lg text-xs [&>button]:cursor-pointer">
             <button
               onClick={() => setPlatform("mac")}
-              className={`px-3 py-1 text-xs font-medium rounded-lg transition-colors ${platform === "mac"
-                  ? "bg-zinc-900 text-white"
-                  : "text-zinc-500 hover:text-zinc-900"
+              className={`px-2.5 py-1 font-medium rounded-md transition-all ${platform === "mac"
+                  ? "bg-white text-zinc-900 shadow-xs"
+                  : "text-zinc-500 hover:text-zinc-800"
                 }`}
             >
-              macOS / Linux
+              macOS
             </button>
             <button
               onClick={() => setPlatform("brew")}
-              className={`px-3 py-1 text-xs font-medium rounded-lg transition-colors ${platform === "brew"
-                  ? "bg-zinc-900 text-white"
-                  : "text-zinc-500 hover:text-zinc-900"
+              className={`px-2.5 py-1 font-medium rounded-md transition-all ${platform === "brew"
+                  ? "bg-white text-zinc-900 shadow-xs"
+                  : "text-zinc-500 hover:text-zinc-800"
                 }`}
             >
-              Homebrew
+              Brew
             </button>
             <button
-              onClick={() => setPlatform("win")}
-              className={`px-3 py-1 text-xs font-medium rounded-lg transition-colors ${platform === "win"
-                  ? "bg-zinc-900 text-white"
-                  : "text-zinc-500 hover:text-zinc-900"
+              onClick={() => setPlatform("cmd")}
+              className={`px-2.5 py-1 font-medium rounded-md transition-all ${platform === "cmd"
+                  ? "bg-white text-zinc-900 shadow-xs"
+                  : "text-zinc-500 hover:text-zinc-800"
                 }`}
             >
-              Windows
+              Win CMD
+            </button>
+            <button
+              onClick={() => setPlatform("ps")}
+              className={`px-2.5 py-1 font-medium rounded-md transition-all ${platform === "ps"
+                  ? "bg-white text-zinc-900 shadow-xs"
+                  : "text-zinc-500 hover:text-zinc-800"
+                }`}
+            >
+              Win PS
             </button>
           </div>
 
@@ -104,7 +113,7 @@ export function Hero() {
             href="https://github.com/unstoppable-tanmay/jvm/releases"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-mono text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100 rounded-lg border border-zinc-200 transition-colors"
+            className="shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-mono text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100 rounded-lg border border-zinc-200 transition-colors"
           >
             <span>Releases ({latestVersion})</span>
             <ExternalLink className="w-3 h-3 text-zinc-400" />

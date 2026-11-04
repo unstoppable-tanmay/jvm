@@ -2,7 +2,6 @@ package cli
 
 import (
 	"fmt"
-	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
@@ -21,7 +20,7 @@ var currentCmd = &cobra.Command{
 			return err
 		}
 
-		linkTarget, err := os.Readlink(cfg.CurrentLink)
+		linkTarget, err := config.GetCurrentVersion(cfg)
 		if err == nil {
 			color.Green("Configured jvm default: %s", filepath.Base(linkTarget))
 			color.HiBlack("Path: %s", linkTarget)

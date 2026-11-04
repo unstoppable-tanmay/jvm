@@ -13,10 +13,41 @@ function jvm {
         & "jvm.exe" @args
         if ($LASTEXITCODE -eq 0) {
             $envScript = & "jvm.exe" env --shell powershell
-            Invoke-Expression $envScript
+            if ($envScript) { Invoke-Expression $envScript }
         }
     } else {
         & "jvm.exe" @args
+    }
+}
+
+# Auto-switch Java version when changing directory if .java-version or .jvmrc is present
+function _jvm_auto_switch {
+    $checkDir = (Get-Location).Path
+    $found = $false
+    while ($checkDir -and ($checkDir -ne [System.IO.Path]::GetPathRoot($checkDir))) {
+        if ((Test-Path (Join-Path $checkDir ".java-version")) -or (Test-Path (Join-Path $checkDir ".jvmrc"))) {
+            $found = $true
+            break
+        }
+        $checkDir = Split-Path $checkDir -Parent
+    }
+    if ($found) {
+        $autoEnv = & "jvm.exe" env --shell powershell 2>$null
+        if ($autoEnv) { Invoke-Expression $autoEnv }
+    }
+}
+
+# Hook PowerShell prompt to run auto-switch check on every directory change
+if (Test-Path Function:\prompt) {
+    $oldPrompt = (Get-Command prompt).Definition
+    function prompt {
+        _jvm_auto_switch
+        & ([ScriptBlock]::Create($oldPrompt))
+    }
+} else {
+    function prompt {
+        _jvm_auto_switch
+        "PS $($executionContext.SessionState.Path.CurrentLocation)$('>' * ($nestedPromptLevel + 1)) "
     }
 }
 
