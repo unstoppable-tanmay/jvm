@@ -83,17 +83,13 @@ jobs:
 
       - name: Build macOS Installer (jvm.dmg)
         run: |
-          # Locate built macOS darwin_arm64 and darwin_amd64 binaries from dist
-          DARWIN_ARM64=$(find dist/jvm_darwin_arm64* -name "jvm" | head -n 1)
-          DARWIN_AMD64=$(find dist/jvm_darwin_amd64* -name "jvm" | head -n 1)
-
-          # Create Universal Binary for macOS
           mkdir -p dist/dmg_root/bin
-          if [ -n "$DARWIN_ARM64" ] && [ -n "$DARWIN_AMD64" ]; then
-            lipo -create "$DARWIN_ARM64" "$DARWIN_AMD64" -output dist/dmg_root/bin/jvm
-          else
-            cp "$DARWIN_ARM64" dist/dmg_root/bin/jvm || cp "$DARWIN_AMD64" dist/dmg_root/bin/jvm
-          fi
+
+          # Compile macOS universal binaries directly
+          GOOS=darwin GOARCH=arm64 CGO_ENABLED=0 go build -ldflags "-s -w -X github.com/unstoppable-tanmay/jvm/internal/cli.Version=${NEW_TAG#v}" -o dist/jvm_darwin_arm64 ./cmd/jvm
+          GOOS=darwin GOARCH=amd64 CGO_ENABLED=0 go build -ldflags "-s -w -X github.com/unstoppable-tanmay/jvm/internal/cli.Version=${NEW_TAG#v}" -o dist/jvm_darwin_amd64 ./cmd/jvm
+
+          lipo -create dist/jvm_darwin_arm64 dist/jvm_darwin_amd64 -output dist/dmg_root/bin/jvm
           chmod +x dist/dmg_root/bin/jvm
 
           cp jvm.sh dist/dmg_root/
@@ -109,24 +105,26 @@ jobs:
 
       - name: Build Windows Installer (jvm.exe)
         run: |
-          WIN_BIN=$(find dist/jvm_windows_amd64* -name "jvm.exe" | head -n 1)
-          if [ -n "$WIN_BIN" ]; then
-            makensis -DVERSION="${NEW_TAG#v}" -DBIN_PATH="$WIN_BIN" .github/installer/windows/installer.nsi
-            gh release upload "$NEW_TAG" jvm.exe#jvm.exe\ \(Windows\ x64\ Setup\ Installer\) --clobber
-          fi
+          # Compile Windows amd64 binary directly
+          mkdir -p dist/windows
+          GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -ldflags "-s -w -X github.com/unstoppable-tanmay/jvm/internal/cli.Version=${NEW_TAG#v}" -o dist/windows/jvm.exe ./cmd/jvm
+
+          makensis -DVERSION="${NEW_TAG#v}" -DBIN_PATH="dist/windows/jvm.exe" .github/installer/windows/installer.nsi
+          gh release upload "$NEW_TAG" jvm.exe#jvm.exe\ \(Windows\ x64\ Setup\ Installer\) --clobber
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Prune old releases (keep latest 3)
         run: |
           KEEP=3
-          RELEASES=$(gh release list --limit 100 --json tagName --jq '.[].tagName')
+          # Get list of releases sorted newest to oldest
+          RELEASES=$(gh release list --repo "$GITHUB_REPOSITORY" --limit 100 --json tagName --jq '.[].tagName')
           COUNT=0
           for tag in $RELEASES; do
             COUNT=$((COUNT + 1))
             if [ $COUNT -gt $KEEP ]; then
               echo "Pruning older release and tag: $tag"
-              gh release delete "$tag" --cleanup-tag --yes
+              gh release delete "$tag" --repo "$GITHUB_REPOSITORY" --cleanup-tag --yes || true
             fi
           done
         env:
